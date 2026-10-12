@@ -8,7 +8,7 @@ All experiments are PLANNED, not completed. Track B opens after the from-scratch
 | B | ImageNet backbone, random same head | Head only | Backbone buffers need an explicit BN policy |
 | C | Same ImageNet checkpoint and head init | Head + last stage, then selected stages | Unfreezing schedule changes optimization |
 | D | Same ImageNet checkpoint and head init | All | Discriminative LRs and BN policy recorded |
-| E | Detection-pretrained model | Adapted new class head + documented layers | Separate architecture/head/assignment and detection-pretraining advantage |
+| E | COCO-pretrained YOLO26n; YOLO11n comparison screen | Adapted class output; head-only, partial and full fine-tuning | Separate architecture/neck/head/assignment/loss and detection-pretraining advantages |
 
 Use one official backbone architecture for a random-init A transfer control and B/C/D, with compatible feature adapters and identical head. Preserve the original minimal-detector A as a separate baseline if its architecture differs. The comparison matrix must name both A variants rather than conceal structural differences.
 
@@ -37,3 +37,7 @@ Training times and throughput use declared windows; latency excludes initializat
 ## Final report gate
 
 Complete A–E matrix, per-class AP, PR curves, low-data curves, localization/duplicate/occlusion analysis, resource measurements, provenance and confounders. Select a model for a declared deployment objective, not mAP alone. Test is run after experiment choices are locked.
+
+## YOLO reference extension
+
+Stage 26 now explicitly includes official YOLO fine-tuning with class-map/head audits, E1 head-only, E2 partial and E3 full training, followed by low-data and deployment checks. See [YOLO_FINE_TUNING.md](YOLO_FINE_TUNING.md) for substeps, controls, model shortlist and resource budget. No YOLO training has run.

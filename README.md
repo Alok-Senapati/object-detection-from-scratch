@@ -7,8 +7,6 @@ Build and understand a minimal detector before studying representation reuse. Tr
 ```bash
 git clone https://github.com/Alok-Senapati/object-detection-from-scratch.git
 cd object-detection-from-scratch
-# While the setup PR is open:
-git switch setup/project-03-infrastructure
 uv sync --locked --extra cuda   # Windows/WSL2 NVIDIA laptop
 # CPU-only machine or CI: uv sync --locked --extra cpu
 uv run --no-sync od-diagnose
@@ -37,6 +35,10 @@ PyTorch 2.10.0 / torchvision 0.25.0 are deliberate compatible baseline pins, not
 | `data/`, `artifacts/` | Local ignored datasets and outputs |
 
 No detector architecture, training loop, CIFAR loader, portal or trained weights are included. See [reuse audit](docs/REUSE_AUDIT.md), [taskbook](docs/MENTORING_TASKBOOK.md), [Stage 1](docs/STAGE_01.md), [experiment log](docs/EXPERIMENT_LOG.md), [transfer protocol](docs/TRANSFER_LEARNING_EXPERIMENTS.md) and [validation](docs/SETUP_VALIDATION.md).
+
+## YOLO fine-tuning
+
+Stage 26 includes an official YOLO26n fine-tuning reference, progressing through head-only, partial and full updates; YOLO11n provides a mature comparison screen. Keep A-D on the understandable detector and treat YOLO as a separate detection-pretrained E benchmark. See [YOLO protocol](docs/YOLO_FINE_TUNING.md). No YOLO dependency or weights are installed until this stage.
 
 ## Infrastructure contracts
 

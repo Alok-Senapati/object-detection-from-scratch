@@ -250,7 +250,7 @@ Teaching order at every stage: concept → why → intuition → mathematics →
 - Experiment/analysis: submit a small numerical or execution check appropriate to this stage, inspect its evidence, and explain one failure case before longer runs.
 - Documented takeaway: pending learner submission and review; record what changed your understanding, evidence and next action here.
 
-## Stage 26 — Detection checkpoint transfer E
+## Stage 26 — Detection checkpoint transfer E and YOLO fine-tuning
 
 - Status: planned
 - Acceptance: New class map, replacement head and loaded/skipped key audit.
@@ -258,6 +258,8 @@ Teaching order at every stage: concept → why → intuition → mathematics →
 - Coding exercise: Adapt an official detector as a separate reference experiment.
 - Experiment/analysis: submit a small numerical or execution check appropriate to this stage, inspect its evidence, and explain one failure case before longer runs.
 - Documented takeaway: pending learner submission and review; record what changed your understanding, evidence and next action here.
+
+For Stage 26 substeps, quizzes and acceptance gates, see [YOLO_FINE_TUNING.md](YOLO_FINE_TUNING.md). Mandatory primary reference: YOLO26n E1/E2/E3; YOLO11n is a small comparison screen. Optional alternatives do not expand the mandatory track. All YOLO runs remain planned.
 
 ## Stage 27 — Domain adaptation
 
