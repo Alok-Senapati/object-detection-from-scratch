@@ -1,0 +1,63 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "object-detection-from-scratch"
+version = "0.1.0"
+description = "Object detection mechanisms and controlled transfer-learning experiments"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = ["torch==2.10.0", "torchvision==0.25.0", "numpy>=2.0,<3", "matplotlib>=3.9,<4", "tensorboard>=2.17,<3", "pydantic>=2.10,<3", "pillow>=11,<13"]
+
+[project.scripts]
+od-diagnose = "od_scratch.infra.diagnostics:main"
+od-smoke = "od_scratch.infra.smoke:main"
+
+[project.optional-dependencies]
+cpu = ["torch==2.10.0", "torchvision==0.25.0"]
+cuda = ["torch==2.10.0", "torchvision==0.25.0"]
+notebooks = ["jupyterlab>=4.3,<5", "ipykernel>=6.29,<8"]
+
+[dependency-groups]
+dev = ["pytest>=8.3,<10", "ruff>=0.12,<1", "mypy>=1.17,<2"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/od_scratch"]
+
+[tool.uv]
+conflicts = [[{ extra = "cpu" }, { extra = "cuda" }]]
+
+[tool.uv.sources]
+torch = [{ index = "pytorch-cpu", extra = "cpu" }, { index = "pytorch-cu128", extra = "cuda" }]
+torchvision = [{ index = "pytorch-cpu", extra = "cpu" }, { index = "pytorch-cu128", extra = "cuda" }]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[[tool.uv.index]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+explicit = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src", "scripts", "tests"]
+
+[[tool.mypy.overrides]]
+module = ["torch.utils.tensorboard", "tensorboard.*", "matplotlib.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"

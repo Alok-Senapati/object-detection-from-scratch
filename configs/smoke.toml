@@ -1,0 +1,7 @@
+seed = 42
+deterministic = true
+device = "auto"
+input_size = 320
+batch_size = 2
+num_workers = 0
+artifact_root = "artifacts"
