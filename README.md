@@ -4,8 +4,15 @@ Build and understand a minimal detector before studying representation reuse. Tr
 
 ## Setup — Python 3.12 / uv
 
+Use `main` for setup and practice. For an existing checkout, update it first:
+
 ```bash
-git clone https://github.com/Alok-Senapati/object-detection-from-scratch.git
+git switch main
+git pull --ff-only origin main
+```
+
+```bash
+git clone --branch main https://github.com/Alok-Senapati/object-detection-from-scratch.git
 cd object-detection-from-scratch
 uv sync --locked --extra cuda   # Windows/WSL2 NVIDIA laptop
 # CPU-only machine or CI: uv sync --locked --extra cpu
@@ -18,6 +25,12 @@ uv run --no-sync tensorboard --logdir artifacts
 Select exactly one of `cpu` or `cuda`. Use `--no-sync` on subsequent commands so a default sync does not replace the selected wheel variant. CPU sync on macOS uses the official CPU wheel and can select MPS when available; untested here. Optional notebooks: add `--extra notebooks` to your chosen sync command.
 
 PyTorch 2.10.0 / torchvision 0.25.0 are deliberate compatible baseline pins, not a claim of newest versions. CUDA wheels use cu128; a matching local CUDA toolkit is not needed for wheel execution, but a compatible NVIDIA driver is. Windows and WSL installations are separate. Verify the actual device before experiments. Installation source: https://pytorch.org/get-started/previous-versions/
+
+## Verified local setup
+
+User-provided Windows validation on 2026-10-12: Python 3.12.13, PyTorch 2.10.0+cu128, CUDA runtime 12.8, RTX 3060 Laptop GPU (6143.5 MiB). CUDA diagnosis and smoke passed; Ruff, formatting, strict Mypy and all 9 tests passed. TensorBoard served at http://localhost:6006/. See [validation evidence](docs/SETUP_VALIDATION.md) for scope and remaining checks.
+
+If uv reports that hardlinking is unavailable, installation still succeeds using copies. In PowerShell, use `uv sync --locked --extra cuda --link-mode=copy` to select copy mode explicitly. This affects package installation/storage, not model CUDA availability. TensorBoard can display our PyTorch scalar logs without installing TensorFlow.
 
 ## Layout and ownership
 
