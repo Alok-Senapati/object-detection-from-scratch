@@ -4,26 +4,26 @@ Teaching order at every stage: concept → why → intuition → mathematics →
 
 ## Current state
 
-- Stage 0 infrastructure: implemented; validation evidence in SETUP_VALIDATION.md. Your Windows/WSL GPU smoke remains pending.
+- Stage 0 execution gates: passed on agent CPU and user-provided native Windows CUDA evidence; see SETUP_VALIDATION.md. Brief reproducibility quiz remains open; WSL2/MPS and workload profiling remain untested.
 - Stage 1: introduced; your diagnostic and coding submission pending.
 - Stages 2–30: planned.
-- Next concrete task: run local setup, then submit Stage 1 target shapes and diagnostic answers. Stage 1 completion does not require Stage 2 conversion algorithms.
+- Next concrete task: submit Stage 1 target shapes and diagnostic answers. Stage 1 completion does not require Stage 2 conversion algorithms.
 
 ## Milestone record
 
 | Stage | State | Evidence | Takeaway |
 |---|---|---|---|
-| 0 | Infrastructure verified in execution environment; laptop pending | SETUP_VALIDATION.md | CPU checks do not establish laptop GPU readiness |
+| 0 | Execution gates passed on CPU and native Windows CUDA; quiz pending | SETUP_VALIDATION.md | CUDA smoke confirms execution; workload VRAM and speed still require measurement |
 | 1 | Awaiting learner submission | STAGE_01.md | Pending your explanation |
 
 ## Stage 0 — Environment, repository setup and diagnostic
 
-- Status: partially complete
+- Status: execution gates complete; reproducibility quiz pending
 - Acceptance: Clean sync; tests/lint/types pass; local device smoke evidenced.
 - Brief quiz: Why can seeding alone fail to reproduce CUDA runs?
-- Coding exercise: Run diagnose and smoke on your laptop; report versions/device/VRAM.
+- Coding exercise: completed from supplied Windows diagnosis, CUDA smoke and all 9 tests; versions and idle VRAM recorded in SETUP_VALIDATION.md.
 - Experiment/analysis: submit a small numerical or execution check appropriate to this stage, inspect its evidence, and explain one failure case before longer runs.
-- Documented takeaway: pending learner submission and review; record what changed your understanding, evidence and next action here.
+- Documented takeaway: native Windows CUDA execution is verified by supplied logs; idle allocator statistics are not training VRAM. Reproducibility quiz answer remains pending.
 
 ## Stage 1 — Detection formulation
 
@@ -250,7 +250,7 @@ Teaching order at every stage: concept → why → intuition → mathematics →
 - Experiment/analysis: submit a small numerical or execution check appropriate to this stage, inspect its evidence, and explain one failure case before longer runs.
 - Documented takeaway: pending learner submission and review; record what changed your understanding, evidence and next action here.
 
-## Stage 26 — Detection checkpoint transfer E
+## Stage 26 — Detection checkpoint transfer E and YOLO fine-tuning
 
 - Status: planned
 - Acceptance: New class map, replacement head and loaded/skipped key audit.
@@ -258,6 +258,8 @@ Teaching order at every stage: concept → why → intuition → mathematics →
 - Coding exercise: Adapt an official detector as a separate reference experiment.
 - Experiment/analysis: submit a small numerical or execution check appropriate to this stage, inspect its evidence, and explain one failure case before longer runs.
 - Documented takeaway: pending learner submission and review; record what changed your understanding, evidence and next action here.
+
+For Stage 26 substeps, quizzes and acceptance gates, see [YOLO_FINE_TUNING.md](YOLO_FINE_TUNING.md). Mandatory primary reference: YOLO26n E1/E2/E3; YOLO11n is a small comparison screen. Optional alternatives do not expand the mandatory track. All YOLO runs remain planned.
 
 ## Stage 27 — Domain adaptation
 
