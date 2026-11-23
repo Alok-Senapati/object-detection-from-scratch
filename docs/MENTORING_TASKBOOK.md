@@ -6,8 +6,10 @@ Teaching order at every stage: concept → why → intuition → mathematics →
 
 - Stage 0 execution gates: passed on agent CPU and user-provided native Windows CUDA evidence; see SETUP_VALIDATION.md. Brief reproducibility quiz remains open; WSL2/MPS and workload profiling remain untested.
 - Stage 1: introduced; your diagnostic and coding submission pending.
-- Stages 2–30: planned.
-- Next concrete task: submit Stage 1 target shapes and diagnostic answers. Stage 1 completion does not require Stage 2 conversion algorithms.
+- VOC parser and preview are implemented in main at `2ce3764`; this is partial Stage 4 work completed ahead of the written sequence.
+- Resume work on 2026-11-23 adds a dataset adapter, collate function and synthetic integration tests. Real VOC files and training evidence are not available in the agent checkout.
+- Stages 2–3 and 5–30: planned. Stage 4 is partial: transforms, split leakage audit and real-data evidence remain open.
+- Next concrete task: run `scripts/inspect_voc.py` on local train data, then implement Stage 2 box geometry using [BUILD_NEXT.md](BUILD_NEXT.md). Do not repeat completed parsing/setup work. Stage 1 learner understanding remains unverified until reviewed.
 
 ## Milestone record
 
@@ -54,7 +56,7 @@ Teaching order at every stage: concept → why → intuition → mathematics →
 
 ## Stage 4 — VOC ingestion and transforms
 
-- Status: planned
+- Status: partial (parser/preview implemented; dataset/batching added during resume; transforms and split audit pending)
 - Acceptance: Inspect annotations, hashed leak-free splits and invertible letterbox.
 - Brief quiz: What changes in the boxes when padding is added?
 - Coding exercise: Parse XML, preserve difficult flags and transform image and boxes together.

@@ -37,7 +37,7 @@ If uv reports that hardlinking is unavailable, installation still succeeds using
 | Path | Responsibility |
 |---|---|
 | `src/od_scratch/infra/` | Fully implemented generic experiment utilities |
-| `src/od_scratch/data/` | Future VOC ingestion and detection-aware transforms |
+| `src/od_scratch/data/` | Validated VOC parser, dataset and variable-size batching; transforms pending |
 | `src/od_scratch/geometry/` | Your box conversions and overlap implementations |
 | `src/od_scratch/models/` | Your backbone/head/decoding, later official backbones |
 | `src/od_scratch/losses/` | Your assignment and loss implementations |
@@ -66,3 +66,15 @@ Stage 26 includes an official YOLO26n fine-tuning reference, progressing through
 Begin at 320-pixel input, batch 2, workers 0; profile before increasing. Diagnostics first: forward/backward, then tiny-set overfit, then short train/val runs. AMP/accumulation come later with numerical checks; do not silently change effective batch between comparisons. No cloud requirement.
 
 No detection results exist yet. Setup passing is not evidence that a detector trains successfully.
+
+## Resume building
+
+See [the current build checkpoint](docs/BUILD_NEXT.md) for verified progress, the next
+learner implementation and a runnable batch inspection:
+
+```bash
+uv run --no-sync python scripts/inspect_voc.py --root data/VOCdevkit/VOC2007
+```
+
+The loader preserves original image sizes and all object flags. Joint resizing,
+split leakage checks and the detector are the next increments.
