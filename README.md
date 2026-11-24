@@ -37,7 +37,8 @@ If uv reports that hardlinking is unavailable, installation still succeeds using
 | Path | Responsibility |
 |---|---|
 | `src/od_scratch/infra/` | Fully implemented generic experiment utilities |
-| `src/od_scratch/data/` | Future VOC ingestion and detection-aware transforms |
+| `src/od_scratch/data/` | Validated VOC XML parsing and variable-size tensor datasets |
+| `src/od_scratch/utils/` | Annotated VOC batch visualization |
 | `src/od_scratch/geometry/` | Your box conversions and overlap implementations |
 | `src/od_scratch/models/` | Your backbone/head/decoding, later official backbones |
 | `src/od_scratch/losses/` | Your assignment and loss implementations |
@@ -48,6 +49,30 @@ If uv reports that hardlinking is unavailable, installation still succeeds using
 | `data/`, `artifacts/` | Local ignored datasets and outputs |
 
 No detector architecture, training loop, CIFAR loader, portal or trained weights are included. See [reuse audit](docs/REUSE_AUDIT.md), [taskbook](docs/MENTORING_TASKBOOK.md), [Stage 1](docs/STAGE_01.md), [experiment log](docs/EXPERIMENT_LOG.md), [transfer protocol](docs/TRANSFER_LEARNING_EXPERIMENTS.md) and [validation](docs/SETUP_VALIDATION.md).
+
+## Inspect a local VOC dataset
+
+Place VOC2007 under `data/VOCdevkit/VOC2007`, or pass `--root` to these commands:
+
+```bash
+uv run --no-sync python scripts/check_dataloader.py --split train --batch-size 2
+uv run --no-sync python scripts/visualize_dataset.py --split train --batch-size 6
+# Headless export (no interactive window):
+uv run --no-sync python scripts/visualize_dataset.py --no-show --output-dir artifacts/visualize
+```
+
+`visualize_dataset.py` replaces the single-image `preview_voc.py` script. It saves a
+timestamped PNG and displays the batch unless `--no-show` is supplied. Labels show
+`(T)` for truncated and `(D)` for difficult objects. Import the reusable function
+from `od_scratch.utils.visualizer`; package initializers intentionally avoid eager
+plotting imports.
+
+`VOCDataset` returns RGB float32 CHW images in [0, 1], without resizing, and targets
+with float32 `(N, 4)` pixel-edge boxes, zero-based int64 labels, boolean difficult
+and truncated flags, scalar split-index `image_id`, and `[height, width]` `orig_size`.
+`detection_collate` retains lists so image sizes and object counts may differ.
+Empty annotations are supported; malformed annotations and image mismatches fail.
+See [data conventions](data/README.md). Transforms and detector training remain future work.
 
 ## YOLO fine-tuning
 

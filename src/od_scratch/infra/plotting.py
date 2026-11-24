@@ -12,6 +12,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 def plot_scalars(
     series: Mapping[str, Sequence[float]], path: Path, *, ylabel: str = "Value"
 ) -> None:
+    """Save named scalar sequences against zero-based steps and close the figure."""
     fig, ax = plt.subplots(figsize=(8, 4))
     try:
         for name, values in series.items():

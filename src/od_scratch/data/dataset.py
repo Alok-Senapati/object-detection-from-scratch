@@ -9,7 +9,7 @@ import numpy as np
 import torch
 from PIL import Image
 from torch import Tensor
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 
 from od_scratch.data.voc import parse_voc_annotation
 
@@ -48,10 +48,23 @@ class VOCDataset(Dataset[Sample]):
     zero-based (no background class). Boxes use zero-based pixel-edge xyxy.
     Both difficult and truncated flags are preserved; no objects are filtered.
     This loader does not resize, normalize, augment or pad images.
+
+    Args:
+        root: VOC directory; defaults to data/VOCdevkit/VOC2007 in this checkout.
+        split: Official image-level manifest to load.
+
+    Raises:
+        ValueError: A manifest is empty, duplicated, or contains invalid IDs.
+        FileNotFoundError: A manifest, image, or annotation is missing.
+
+    Targets include scalar image_id (the split index) and orig_size [height, width].
+    Annotation/image consistency is checked when each sample is read.
     """
 
     def __init__(
-        self, root: str | Path, split: Literal["train", "val", "trainval", "test"] = "train"
+        self,
+        root: str | Path = DATASET_BASEPATH,
+        split: Literal["train", "val", "trainval", "test"] = "train",
     ) -> None:
         if split not in ["train", "val", "trainval", "test"]:
             raise ValueError(f"Unsupported VOC Split: {split}")
@@ -105,28 +118,5 @@ class VOCDataset(Dataset[Sample]):
 
 
 def detection_collate(batch: list[Sample]) -> tuple[list[Tensor], list[Target]]:
-    """Keep variable image sizes and object counts; stack only after resizing"""
+    """Return image and target lists, preserving variable sizes and object counts."""
     return [image for image, _ in batch], [target for _, target in batch]
-
-
-if __name__ == "__main__":
-    dataset = VOCDataset(root=str(DATASET_BASEPATH), split="train")
-
-    print("Samples:", len(dataset))
-    image, target = dataset[0]
-    print(f"Image: {image.shape}, {image.dtype}")
-
-    for key, value in target.items():
-        print(key, value.shape, value.dtype)
-    print("=" * 100)
-
-    loader = DataLoader(
-        dataset, batch_size=2, shuffle=False, num_workers=0, collate_fn=detection_collate
-    )
-    images, targets = next(iter(loader))
-    for image, target in zip(images, targets, strict=True):
-        print("-" * 100)
-        print(f"Image: {image.shape}, dtype={image.dtype}")
-        for key, value in target.items():
-            print(f"{key}={value}, {value.shape}, dtype={value.dtype}")
-        print("-" * 100)

@@ -34,6 +34,12 @@ def save_checkpoint(
 
 
 def load_checkpoint(path: Path, model: torch.nn.Module, *, strict: bool = True) -> dict[str, Any]:
+    """Load weights onto the supplied model and return caller-owned training state.
+
+    Raises:
+        ValueError: The checkpoint schema or training state is invalid.
+        RuntimeError: Model keys or tensor shapes are incompatible with the checkpoint.
+    """
     payload = torch.load(path, map_location="cpu", weights_only=True)
     if not isinstance(payload, dict) or payload.get("schema_version") != 1:
         raise ValueError("Unsupported checkpoint schema")

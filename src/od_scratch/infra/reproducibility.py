@@ -8,6 +8,12 @@ import torch
 
 
 def seed_everything(seed: int, *, deterministic: bool = True) -> torch.Generator:
+    """Seed Python, NumPy and PyTorch and return a seeded DataLoader generator.
+
+    Updates process-wide determinism settings. The seed must be in [0, 2**32).
+    Deterministic execution can reject unsupported kernels; it does not guarantee
+    identical results across hardware or library versions.
+    """
     if not 0 <= seed < 2**32:
         raise ValueError("seed must be in [0, 2**32)")
     if deterministic:
@@ -24,7 +30,7 @@ def seed_everything(seed: int, *, deterministic: bool = True) -> torch.Generator
 
 
 def seed_worker(worker_id: int) -> None:
-    """Pass as DataLoader worker_init_fn; also pass the returned generator."""
+    """Seed worker Python/NumPy RNGs; pair with seed_everything's loader generator."""
     del worker_id
     worker_seed = torch.initial_seed() % 2**32
     random.seed(worker_seed)

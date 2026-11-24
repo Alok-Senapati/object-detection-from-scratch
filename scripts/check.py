@@ -5,6 +5,7 @@ import sys
 
 
 def main() -> None:
+    """Run lint, formatting, typing and tests, stopping on the first failing command."""
     for command in (
         ["ruff", "check", "."],
         ["ruff", "format", "--check", "."],

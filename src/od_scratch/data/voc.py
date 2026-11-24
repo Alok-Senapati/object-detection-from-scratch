@@ -1,3 +1,5 @@
+"""Validate Pascal VOC XML and convert inclusive indices to pixel-edge boxes."""
+
 from __future__ import annotations
 
 import xml.etree.ElementTree as ET

@@ -21,6 +21,11 @@ def make_optimizer(
     weight_decay: float = 0.0,
     momentum: float = 0.9,
 ) -> Optimizer:
+    """Create adamw, adam, or sgd with optional per-group overrides.
+
+    The caller owns parameter selection, including excluding frozen parameters.
+    Unknown names raise ValueError; optimizer-specific constraints come from PyTorch.
+    """
     if name == "adamw":
         return torch.optim.AdamW(parameters, lr=lr, weight_decay=weight_decay)
     if name == "adam":

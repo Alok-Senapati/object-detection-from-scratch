@@ -9,6 +9,8 @@ from od_scratch.infra.device import synchronize
 
 
 class Timer:
+    """Measure context elapsed seconds, synchronizing the optional accelerator."""
+
     def __init__(self, device: torch.device | None = None) -> None:
         self.device = device
         self.elapsed = 0.0
@@ -32,6 +34,7 @@ class Timer:
 
 
 def gradient_norms(model: torch.nn.Module) -> dict[str, float]:
+    """Return per-parameter L2 gradient norms and their combined L2 norm."""
     norms = {
         f"grad_norm/{name}": float(p.grad.detach().norm().item())
         for name, p in model.named_parameters()
@@ -42,6 +45,7 @@ def gradient_norms(model: torch.nn.Module) -> dict[str, float]:
 
 
 def parameter_counts(model: torch.nn.Module) -> dict[str, int]:
+    """Count total and requires_grad parameter elements, excluding buffers."""
     return {
         "total": sum(p.numel() for p in model.parameters()),
         "trainable": sum(p.numel() for p in model.parameters() if p.requires_grad),
@@ -56,6 +60,7 @@ class WeightedMean:
         self.count = 0
 
     def update(self, value: float, weight: int = 1) -> None:
+        """Accumulate a weighted observation; nonpositive weights raise ValueError."""
         if weight <= 0:
             raise ValueError("weight must be positive")
         self.total += value * weight
@@ -63,6 +68,7 @@ class WeightedMean:
 
     @property
     def mean(self) -> float:
+        """Return the weighted mean, raising ValueError before any observations."""
         if not self.count:
             raise ValueError("no observations")
         return self.total / self.count

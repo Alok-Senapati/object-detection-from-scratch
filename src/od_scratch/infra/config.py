@@ -8,6 +8,8 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 class RunConfig(BaseModel):
+    """Validated run settings; unknown keys are errors and artifact paths use the cwd."""
+
     model_config = ConfigDict(extra="forbid")
     seed: int = Field(default=42, ge=0, le=2**32 - 1)
     deterministic: bool = True
@@ -19,5 +21,6 @@ class RunConfig(BaseModel):
 
 
 def load_config(path: Path) -> RunConfig:
+    """Read TOML and validate settings, propagating parse and validation errors."""
     with path.open("rb") as handle:
         return RunConfig.model_validate(tomllib.load(handle))

@@ -18,6 +18,7 @@ from od_scratch.infra.config import RunConfig
 
 
 def git_metadata() -> dict[str, Any]:
+    """Read the current checkout's commit and dirty state, or None outside Git."""
     try:
         sha = subprocess.check_output(
             ["git", "rev-parse", "HEAD"], text=True, stderr=subprocess.DEVNULL
@@ -29,6 +30,7 @@ def git_metadata() -> dict[str, Any]:
 
 
 def console_logger() -> logging.Logger:
+    """Return the shared INFO logger without adding duplicate console handlers."""
     logger = logging.getLogger("od_scratch")
     if not logger.handlers:
         handler = logging.StreamHandler()
@@ -40,6 +42,12 @@ def console_logger() -> logging.Logger:
 
 
 class Experiment:
+    """Create a unique run directory and persist metadata and scalar events.
+
+    Use as a context manager to close the optional TensorBoard writer reliably.
+    Paths are resolved from RunConfig.artifact_root relative to the working directory.
+    """
+
     def __init__(self, config: RunConfig, *, tensorboard: bool = True) -> None:
         run_id = datetime.now(UTC).strftime("%Y%m%dT%H%M%S") + "-" + uuid4().hex[:8]
         self.path = Path(config.artifact_root) / run_id
@@ -57,6 +65,7 @@ class Experiment:
         self.writer = SummaryWriter(str(self.path / "tensorboard")) if tensorboard else None
 
     def log(self, step: int, metrics: dict[str, float]) -> None:
+        """Append and flush scalars; reject negative steps and nonfinite values."""
         if step < 0 or not all(math.isfinite(value) for value in metrics.values()):
             raise ValueError("Metrics must be finite and step nonnegative")
         event = {"time": datetime.now(UTC).isoformat(), "step": step, "metrics": metrics}
@@ -68,6 +77,7 @@ class Experiment:
             self.writer.flush()
 
     def close(self) -> None:
+        """Close the TensorBoard writer when enabled."""
         if self.writer is not None:
             self.writer.close()
 

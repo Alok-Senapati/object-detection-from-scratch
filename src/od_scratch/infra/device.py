@@ -4,6 +4,7 @@ import torch
 
 
 def select_device(requested: str = "auto") -> torch.device:
+    """Prefer CUDA, then MPS, then CPU; reject unsupported or unavailable requests."""
     available = {
         "cpu": True,
         "cuda": torch.cuda.is_available(),
@@ -17,6 +18,7 @@ def select_device(requested: str = "auto") -> torch.device:
 
 
 def synchronize(device: torch.device) -> None:
+    """Wait for queued CUDA/MPS work; CPU execution needs no explicit synchronization."""
     if device.type == "cuda":
         torch.cuda.synchronize(device)
     elif device.type == "mps":
@@ -24,6 +26,7 @@ def synchronize(device: torch.device) -> None:
 
 
 def memory_stats(device: torch.device) -> dict[str, float]:
+    """Return CUDA allocator/device capacity in MiB, or no measurements for CPU/MPS."""
     if device.type != "cuda":
         return {}  # Missing measurement is never reported as zero VRAM.
     mib = 1024**2

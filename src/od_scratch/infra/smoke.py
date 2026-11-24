@@ -13,6 +13,7 @@ from od_scratch.infra.reproducibility import seed_everything
 
 
 def main() -> None:
+    """Run finite tensor forward/backward work and persist timing and scalar logs."""
     parser = argparse.ArgumentParser()
     parser.add_argument("--config", type=Path, default=Path("configs/smoke.toml"))
     args = parser.parse_args()

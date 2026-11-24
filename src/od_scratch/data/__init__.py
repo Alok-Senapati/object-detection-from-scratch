@@ -1,1 +1,1 @@
-"""Data work is implemented progressively during mentorship."""
+"""VOC parsing and tensor datasets; import APIs from voc and dataset submodules."""
