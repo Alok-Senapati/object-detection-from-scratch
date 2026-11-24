@@ -45,6 +45,35 @@ def test_empty_annotation(tmp_path: Path) -> None:
     assert parse_voc_annotation(annotation(tmp_path))["objects"] == []
 
 
+def test_parser_does_not_require_image_file(tmp_path: Path) -> None:
+    path = annotation(tmp_path, object_xml())
+    assert not (tmp_path / "sample.jpg").exists()
+    result = parse_voc_annotation(path)
+    assert result["filename"] == "sample.jpg"
+    assert result["objects"][0]["box_xyxy"] == [0, 0, 10, 8]
+
+
+@pytest.mark.parametrize(
+    "field", ["filename", "size", "size/width", "size/height", "object/name", "object/bndbox/xmin"]
+)
+@pytest.mark.parametrize("empty", [False, True])
+def test_missing_or_empty_required_fields(tmp_path: Path, field: str, empty: bool) -> None:
+    path = annotation(tmp_path, object_xml())
+    tree = ET.parse(path)
+    element = tree.find(field)
+    assert element is not None
+    if empty:
+        element.clear()
+    else:
+        parent_path, _, _ = field.rpartition("/")
+        parent = tree.find(parent_path) if parent_path else tree.getroot()
+        assert parent is not None
+        parent.remove(element)
+    tree.write(path, encoding="utf-8")
+    with pytest.raises(ValueError, match="missing or empty|missing <size>"):
+        parse_voc_annotation(path)
+
+
 @pytest.mark.parametrize("box", ["0,1,10,8", "1,1,11,8", "5,1,3,8", "nan,1,10,8", "1,1,inf,8"])
 def test_invalid_boxes(tmp_path: Path, box: str) -> None:
     with pytest.raises(ValueError, match="invalid box"):

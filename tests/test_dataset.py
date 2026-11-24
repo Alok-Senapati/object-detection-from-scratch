@@ -8,8 +8,7 @@ import torch
 from PIL import Image
 from torch.utils.data import DataLoader
 
-from od_scratch.data.dataset import CLASS_TO_ID, VOCDataset, detection_collate
-from od_scratch.data.voc import load_sample
+from od_scratch.data.dataset import VOCDataset, detection_collate
 
 
 def write_sample(
@@ -45,12 +44,9 @@ def write_sample(
 @pytest.mark.parametrize("mode", ["RGB", "L"])
 @pytest.mark.parametrize("empty", [False, True])
 def test_sample_contract(tmp_path: Path, mode: str, empty: bool) -> None:
-    xml = write_sample(tmp_path, objects=not empty, mode=mode)
+    write_sample(tmp_path, objects=not empty, mode=mode)
     dataset = VOCDataset(str(tmp_path))
     image, target = dataset[0]
-    standalone_image, standalone_target = load_sample(
-        str(xml), str(tmp_path / "JPEGImages"), CLASS_TO_ID
-    )
     assert len(dataset) == 1
     assert image.shape == (3, 8, 10)
     assert image.dtype == torch.float32
@@ -58,9 +54,6 @@ def test_sample_contract(tmp_path: Path, mode: str, empty: bool) -> None:
     assert 0 <= image.min() <= image.max() <= 1
     if mode == "L":
         assert torch.equal(image, torch.ones_like(image))
-    assert torch.equal(image, standalone_image)
-    for key, value in standalone_target.items():
-        assert torch.equal(target[key], value)
     count = 0 if empty else 2
     assert target["boxes"].shape == (count, 4)
     assert target["boxes"].dtype == torch.float32
@@ -152,10 +145,16 @@ def test_annotation_image_disagreement(
         VOCDataset(tmp_path)[0]
 
 
-def test_load_sample_custom_labels_and_size_validation(tmp_path: Path) -> None:
-    xml = write_sample(tmp_path)
-    _, target = load_sample(str(xml), str(tmp_path / "JPEGImages"), {"cat": 42, "person": 99})
-    assert target["labels"].tolist() == [42, 99]
+def test_dataset_rejects_incorrect_image_size(tmp_path: Path) -> None:
+    write_sample(tmp_path)
     Image.new("RGB", (12, 8)).save(tmp_path / "JPEGImages/sample.jpg")
     with pytest.raises(ValueError, match="dimensions"):
-        load_sample(str(xml), str(tmp_path / "JPEGImages"), CLASS_TO_ID)
+        VOCDataset(tmp_path)[0]
+
+
+@pytest.mark.parametrize("pixel", [0, 64, 128, 255])
+def test_dataset_scales_pixels_to_unit_range(tmp_path: Path, pixel: int) -> None:
+    write_sample(tmp_path)
+    Image.new("RGB", (10, 8), (pixel, pixel, pixel)).save(tmp_path / "JPEGImages/sample.jpg")
+    image, _ = VOCDataset(tmp_path)[0]
+    torch.testing.assert_close(image, torch.full((3, 8, 10), pixel / 255))
