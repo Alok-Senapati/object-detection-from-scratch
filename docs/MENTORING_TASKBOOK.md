@@ -1,20 +1,61 @@
 # Mentoring taskbook
 
-Teaching order at every stage: concept → why → intuition → mathematics → numerical walkthrough → visualization → guided implementation → experiment → analysis. You implement detection algorithms; mentor implements generic infrastructure. Never mark complete without evidence. No beginner CNN repeat and no unrelated LLM content.
+Teaching order at every stage: concept → why → intuition → mathematics → numerical walkthrough → visualization → guided implementation → experiment → analysis. You implement all project code. The mentor teaches concepts, gives focused examples and hints, and reviews submissions; repository edits require an explicit request. Documentation updates may be performed when requested. PR #3 remains unmerged reference material and is not learner completion evidence. Never mark complete without evidence. No beginner CNN repeat and no unrelated LLM content.
 
-## Current state
+## Current state — 24 November 2026
 
-- Stage 0 execution gates: passed on agent CPU and user-provided native Windows CUDA evidence; see SETUP_VALIDATION.md. Brief reproducibility quiz remains open; WSL2/MPS and workload profiling remain untested.
-- Stage 1: introduced; your diagnostic and coding submission pending.
-- Stages 2–30: planned.
-- Next concrete task: submit Stage 1 target shapes and diagnostic answers. Stage 1 completion does not require Stage 2 conversion algorithms.
+- **Milestone 1 — Reliable detection data pipeline: complete.** Learner implementation, synthetic integration tests, successful CI and a supplied real six-image training-batch visualization have been reviewed.
+- **Next: Milestone 2 — Bounding-box geometry.** Teach corner vs center-size coordinates, work a numerical example, then let the learner implement vectorized conversions before normalization/clipping and IoU.
+- Code evidence on main: `2ce3764` (parser/preview), `3e3f041` (dataset/collation), `2975e25` (remove duplicate loading/mapping and expand tests), `624f398` (batch visualization and inspection CLIs).
+- [CI for 624f398](https://github.com/Alok-Senapati/object-detection-from-scratch/actions/runs/45457385619) passed project checks, CPU diagnostics and smoke execution. Real-data visualization evidence is separate from synthetic CI.
+- Image evidence: learner attachment `visualize_train_batch_1795544817334067600.png` ([saved image](https://chatgpt.com/library?file_id=libfile_872d9d0dd2e08191a09884acfbec131d&account_id=personal)), reviewed in conversation. Six variable-size images show car, horse/person, cyclists and aeroplanes with plausibly aligned boxes, decoded class names and T/D flags. This is an annotation overlay, not detector output; it does not verify every annotation in the dataset.
+- Stage 0 execution gates remain passed; reproducibility quiz remains open. Original Stage 1 diagnostic questions not explicitly answered remain open, but do not require restarting the completed data milestone.
+- Original Stage 4 is partial: ingestion is complete; split hashes/leakage audit, invertible letterbox and joint transforms remain pending.
+- No detector training, trained checkpoint or detection AP results have been recorded.
 
-## Milestone record
+## Working agreement
+
+Teach one concept at a time: what/why/where, intuition, numerical example and shapes, then implementation contract, learner attempt, review and evidence. Skip beginner Python/CNN repetition. The learner writes all project code; do not implement ahead or create PRs unless explicitly requested. Keep future solutions unrevealed until an attempt or request for help.
+
+## Project milestones
+
+These 13 working milestones group the original detailed stages below; milestone numbers and stage numbers are different. Preserve the detailed stages as a concept checklist.
+
+| Milestone | Scope / original stages | State and acceptance evidence |
+|---|---|---|
+| 1 | Reliable detection data pipeline — formulation plus ingestion portion of Stages 1 and 4 | Complete: parser, tensor dataset, variable-size collate, tests and real batch visualization reviewed |
+| 2 | Bounding-box geometry — Stages 2–3 | Next: conversion roundtrips, normalization/clipping, hand-checked IoU and related overlap functions |
+| 3 | Training-ready images and splits — remaining Stage 4 | Planned: reversible letterbox, joint image/box augmentation and split leakage audit |
+| 4 | Minimal detector architecture — Stage 5 | Planned: declared backbone/head shapes and validated forward pass |
+| 5 | Decode predictions and assign targets — Stages 6–7 | Planned: numerical decoding, assignment and collision/boundary cases |
+| 6 | Detection losses and gradient flow — Stage 8 | Planned: separate loss diagnostics, finite gradients and empty-target behavior |
+| 7 | Make the detector learn — Stage 9 | Planned: tiny-set overfit with plausible decoded boxes |
+| 8 | Evaluate detections correctly — Stages 10–11 | Planned: NMS, one-to-one matching and independently checked AP |
+| 9 | Scratch baseline and justified improvement — Stages 12–14 | Planned: reproducible validation results, resource measurements and error analysis |
+| 10 | Controlled transfer learning — Stages 15–23 and 25 | Planned: matched random/frozen/partial/full backbone experiments with BN and optimizer audits |
+| 11 | Official YOLO fine-tuning — Stage 26 | Planned: dataset export, provenance, fine-tuning and common evaluation; separate external reference |
+| 12 | Low-data and domain adaptation — Stages 24 and 27 | Planned: nested subsets and domain-shift experiment; suitable target data required |
+| 13 | Inference application and final benchmark — Stages 28–30 plus delivery | Planned: applicable efficient/adaptor tuning, inference CLI, lightweight demo/API, supported export, latency and final report |
+
+Stages 28–29 may be brought forward when experiments need them. Adapter methods require architectural justification; no unsupported technique is mandatory merely to fill the checklist.
+
+## Milestone 1 review record
+
+- Implemented and reviewed: validated VOC parsing; RGB float32 CHW images in [0,1]; fixed zero-based VOC class IDs; float32 boxes [N,4]; int64 labels [N]; boolean difficult/truncated flags; empty boxes [0,4]; image-size checks; lazy loading; variable-size batching; annotated batch visualization.
+- Refactor outcome: duplicate standalone loading and class definitions removed; VOCDataset is the single loading implementation. This satisfies the single-source requirement without requiring a separate load_sample function.
+- Learner explanation: recognized different object counts and the need to preserve image/target association. Mentor clarified that unequal shapes prevent stacking; equal-sized targets could stack while retaining image identity via the batch axis.
+- Collate concept initially needed explanation; implementation was reviewed after guidance. Do not label all understanding as independently demonstrated.
+- Visual review: sampled boxes and labels align with visible objects; overlapping instances and T/D flags are retained. Small-label crowding in the cyclist panel is cosmetic.
+- Limits: six-image visual inspection is not a dataset-wide audit; empty samples are evidenced by synthetic tests. Split overlap/content hashes and training/evaluation difficult-object policies are still pending.
+- Next checkpoint: teach xyxy vs cxcywh with a worked example, then review learner-written vectorized conversion functions with roundtrip, empty and degenerate cases.
+
+## Original stage record
 
 | Stage | State | Evidence | Takeaway |
 |---|---|---|---|
-| 0 | Execution gates passed on CPU and native Windows CUDA; quiz pending | SETUP_VALIDATION.md | CUDA smoke confirms execution; workload VRAM and speed still require measurement |
-| 1 | Awaiting learner submission | STAGE_01.md | Pending your explanation |
+| 0 | CPU/native Windows CUDA execution passed; quiz pending | SETUP_VALIDATION.md and successful CI | Setup execution does not establish detector performance |
+| 1 | Practical target contract evidenced; remaining diagnostic questions open | Dataset/collate code, tests and conversation | Targets are variable-size instance sets; default stacking cannot handle unequal shapes |
+| 4 | Ingestion complete; transforms and split audit pending | Commits through 624f398 and supplied six-image overlay | Image/target alignment checked on a real sample batch |
 
 ## Stage 0 — Environment, repository setup and diagnostic
 
@@ -27,16 +68,16 @@ Teaching order at every stage: concept → why → intuition → mathematics →
 
 ## Stage 1 — Detection formulation
 
-- Status: in progress
+- Status: practical target contract evidenced through Milestone 1; unanswered diagnostic questions remain open
 - Acceptance: Represent variable-size object sets, empty images and explicit shapes.
 - Brief quiz: Why does image classification lose instance count?
-- Coding exercise: Build the three-object and empty targets from STAGE_01.md.
+- Coding evidence: learner implemented real VOC targets, empty-target handling and collate; reviewed in commits through 624f398. The original synthetic exercise was not separately submitted.
 - Experiment/analysis: submit a small numerical or execution check appropriate to this stage, inspect its evidence, and explain one failure case before longer runs.
-- Documented takeaway: pending learner submission and review; record what changed your understanding, evidence and next action here.
+- Documented takeaway: variable object counts require an explicit batching policy; preserve image/target ordering. Remaining original diagnostic answers are not inferred from code.
 
 ## Stage 2 — Bounding-box representations
 
-- Status: planned
+- Status: next lesson (Milestone 2); implementation not yet reviewed
 - Acceptance: Roundtrip xyxy/cxcywh, clip/normalize with edge-case tests.
 - Brief quiz: Why must x coordinates be normalized by width?
 - Coding exercise: Implement conversions and draw boxes; cover empty/degenerate boxes.
@@ -54,7 +95,7 @@ Teaching order at every stage: concept → why → intuition → mathematics →
 
 ## Stage 4 — VOC ingestion and transforms
 
-- Status: planned
+- Status: partial — parsing, dataset, batching and visualization complete; transforms and split audit pending
 - Acceptance: Inspect annotations, hashed leak-free splits and invertible letterbox.
 - Brief quiz: What changes in the boxes when padding is added?
 - Coding exercise: Parse XML, preserve difficult flags and transform image and boxes together.
