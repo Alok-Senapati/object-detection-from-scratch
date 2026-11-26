@@ -25,6 +25,20 @@ def make_optimizer(
 
     The caller owns parameter selection, including excluding frozen parameters.
     Unknown names raise ValueError; optimizer-specific constraints come from PyTorch.
+
+    Args:
+        parameters: Parameter iterable or parameter-group dictionaries; exclude frozen weights
+            as needed.
+        name: Optimizer name: adamw, adam, or sgd.
+        lr: Default learning rate, unless overridden per group.
+        weight_decay: Default weight-decay coefficient.
+        momentum: Momentum used by SGD; ignored by Adam and AdamW.
+
+    Returns:
+        A PyTorch optimizer over the supplied parameters.
+
+    Raises:
+        ValueError: The name is unknown or optimizer options are invalid.
     """
     if name == "adamw":
         return torch.optim.AdamW(parameters, lr=lr, weight_decay=weight_decay)
@@ -44,7 +58,24 @@ def make_scheduler(
     step_size: int = 10,
     factor: float = 0.1,
 ) -> LRScheduler | ReduceLROnPlateau | None:
-    """Step once per epoch after optimizer; plateau needs validation loss."""
+    """Step once per epoch after optimizer; plateau needs validation loss.
+
+    Args:
+        optimizer: Optimizer whose learning rates will be scheduled.
+        name: Scheduler name: none, cosine, step, or plateau.
+        epochs: Positive epoch budget; sets the cosine period.
+        min_lr: Minimum learning rate for cosine or plateau.
+        step_size: Epoch interval for step decay.
+        factor: Multiplicative decay factor for step or plateau.
+
+    Returns:
+        A scheduler, or None when name is none. Step after optimizer updates;
+        plateau additionally requires the validation metric.
+
+    Raises:
+        ValueError: The name is unknown, epochs is nonpositive, or scheduler options are
+            invalid.
+    """
     if epochs <= 0:
         raise ValueError("epochs must be positive")
     if name == "none":

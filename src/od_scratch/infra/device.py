@@ -4,7 +4,17 @@ import torch
 
 
 def select_device(requested: str = "auto") -> torch.device:
-    """Prefer CUDA, then MPS, then CPU; reject unsupported or unavailable requests."""
+    """Prefer CUDA, then MPS, then CPU; reject unsupported or unavailable requests.
+
+    Args:
+        requested: auto, cpu, cuda, or mps; auto prefers CUDA, then MPS, then CPU.
+
+    Returns:
+        The selected available PyTorch device.
+
+    Raises:
+        ValueError: The requested device is unsupported or unavailable.
+    """
     available = {
         "cpu": True,
         "cuda": torch.cuda.is_available(),
@@ -18,7 +28,14 @@ def select_device(requested: str = "auto") -> torch.device:
 
 
 def synchronize(device: torch.device) -> None:
-    """Wait for queued CUDA/MPS work; CPU execution needs no explicit synchronization."""
+    """Wait for queued CUDA/MPS work; CPU execution needs no explicit synchronization.
+
+    Args:
+        device: Device whose queued CUDA or MPS work must finish; CPU is a no-op.
+
+    Returns:
+        None.
+    """
     if device.type == "cuda":
         torch.cuda.synchronize(device)
     elif device.type == "mps":
@@ -26,7 +43,15 @@ def synchronize(device: torch.device) -> None:
 
 
 def memory_stats(device: torch.device) -> dict[str, float]:
-    """Return CUDA allocator/device capacity in MiB, or no measurements for CPU/MPS."""
+    """Return CUDA allocator/device capacity in MiB, or no measurements for CPU/MPS.
+
+    Args:
+        device: Device to inspect.
+
+    Returns:
+        CUDA allocated, reserved, peak allocated, and total capacity values in MiB.
+        CPU and MPS return an empty dictionary, not zero memory usage.
+    """
     if device.type != "cuda":
         return {}  # Missing measurement is never reported as zero VRAM.
     mib = 1024**2

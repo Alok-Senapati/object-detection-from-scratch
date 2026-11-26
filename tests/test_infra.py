@@ -20,6 +20,11 @@ from od_scratch.infra.reproducibility import seed_everything
 
 
 def test_seed_repeats_all_rngs() -> None:
+    """Repeat Python, NumPy, and PyTorch random draws after reseeding.
+
+    Returns:
+        None.
+    """
     seed_everything(17)
     first = (random.random(), np.random.rand(), torch.rand(4))
     seed_everything(17)
@@ -29,6 +34,14 @@ def test_seed_repeats_all_rngs() -> None:
 
 
 def test_config_rejects_typo_and_invalid_batch(tmp_path: Path) -> None:
+    """Load valid settings and reject unknown keys or invalid batch sizes.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+
+    Returns:
+        None.
+    """
     path = tmp_path / "run.toml"
     path.write_text("batch_size = 3", encoding="utf-8")
     assert load_config(path).batch_size == 3
@@ -39,6 +52,11 @@ def test_config_rejects_typo_and_invalid_batch(tmp_path: Path) -> None:
 
 
 def test_device_contract() -> None:
+    """Select CPU explicitly and reject unsupported device names.
+
+    Returns:
+        None.
+    """
     assert select_device("cpu").type == "cpu"
     assert memory_stats(torch.device("cpu")) == {}
     with pytest.raises(ValueError):
@@ -46,6 +64,14 @@ def test_device_contract() -> None:
 
 
 def test_checkpoint_roundtrip_optimizer(tmp_path: Path) -> None:
+    """Restore model parameters and optimizer state from a saved checkpoint.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+
+    Returns:
+        None.
+    """
     model = torch.nn.Linear(3, 2)
     optimizer = make_optimizer(model.parameters())
     model(torch.ones(1, 3)).sum().backward()
@@ -62,6 +88,14 @@ def test_checkpoint_roundtrip_optimizer(tmp_path: Path) -> None:
 
 
 def test_checkpoint_rejects_head_shape(tmp_path: Path) -> None:
+    """Reject incompatible parameter shapes even when strict loading is disabled.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+
+    Returns:
+        None.
+    """
     path = tmp_path / "state.pt"
     save_checkpoint(path, torch.nn.Linear(3, 2))
     with pytest.raises(RuntimeError):
@@ -69,6 +103,14 @@ def test_checkpoint_rejects_head_shape(tmp_path: Path) -> None:
 
 
 def test_experiment_json_and_tensorboard(tmp_path: Path) -> None:
+    """Persist matching scalar events and create distinct experiment directories.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+
+    Returns:
+        None.
+    """
     config = RunConfig(artifact_root=str(tmp_path))
     with Experiment(config) as run:
         run.log(2, {"loss/localization": 1.25})
@@ -84,6 +126,11 @@ def test_experiment_json_and_tensorboard(tmp_path: Path) -> None:
 
 
 def test_gradients_and_frozen_parameters() -> None:
+    """Exclude frozen parameters from trainable counts and gradient measurements.
+
+    Returns:
+        None.
+    """
     model = torch.nn.Linear(3, 2)
     model.bias.requires_grad_(False)
     model(torch.ones(1, 3)).sum().backward()
@@ -94,6 +141,11 @@ def test_gradients_and_frozen_parameters() -> None:
 
 
 def test_scheduler_respects_budget_and_parameter_groups() -> None:
+    """Honor parameter-group rates and the configured scheduler budget.
+
+    Returns:
+        None.
+    """
     backbone = torch.nn.Parameter(torch.ones(1))
     head = torch.nn.Parameter(torch.ones(1))
     optimizer = make_optimizer([{"params": [backbone], "lr": 1e-4}, {"params": [head], "lr": 1e-3}])
@@ -110,6 +162,11 @@ def test_scheduler_respects_budget_and_parameter_groups() -> None:
 
 
 def test_weighted_statistics_and_timer() -> None:
+    """Compute weighted means and record nonnegative elapsed time.
+
+    Returns:
+        None.
+    """
     mean = WeightedMean()
     with pytest.raises(ValueError):
         _ = mean.mean

@@ -86,6 +86,22 @@ Stage 26 includes an official YOLO26n fine-tuning reference, progressing through
 - Checkpoint helpers store state dictionaries atomically and deserialize with `weights_only=True`. Supply an architecture explicitly. Caller owns optimizer/scheduler/scaler/RNG/loader restoration; exact resume is not implemented. `strict=False` does not permit shape mismatch.
 - Optimizer factories accept parameter groups. Cosine uses the actual epoch budget. Step schedulers after optimizer updates; plateau consumes validation loss. Warmup and unfreezing policy are taught in Track B.
 
+## Python documentation convention
+
+Use Google-style docstrings throughout source, scripts, and tests. Begin with a
+concise summary, followed by any explanations of behavior or side effects. Use
+`Args`, `Returns`, and `Raises` in that order when applicable; omit `Args` for
+parameterless callables and `Raises` when there are no relevant documented errors.
+Document `None` returns explicitly. Do not repeat type annotations or list `self`.
+Describe tensor shapes, units, coordinate conventions, and meaningful defaults.
+
+Document constructor arguments in `__init__` and public instance state under
+`Attributes` in the class docstring. Module docstrings summarize responsibility;
+they do not need callable sections. Test docstrings describe the contract checked
+and the meaning of fixtures or parameterized inputs. Keep exception documentation
+aligned with actual validation; document preconditions rather than imply checks
+that the implementation does not perform.
+
 ## Local experiment budget
 
 Begin at 320-pixel input, batch 2, workers 0; profile before increasing. Diagnostics first: forward/backward, then tiny-set overfit, then short train/val runs. AMP/accumulation come later with numerical checks; do not silently change effective batch between comparisons. No cloud requirement.

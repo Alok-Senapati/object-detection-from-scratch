@@ -13,6 +13,17 @@ def seed_everything(seed: int, *, deterministic: bool = True) -> torch.Generator
     Updates process-wide determinism settings. The seed must be in [0, 2**32).
     Deterministic execution can reject unsupported kernels; it does not guarantee
     identical results across hardware or library versions.
+
+    Args:
+        seed: Seed in [0, 2**32) shared by Python, NumPy, and PyTorch.
+        deterministic: Enable strict deterministic algorithms and disable cuDNN benchmarking
+            when True.
+
+    Returns:
+        A separately seeded torch.Generator for use with a DataLoader.
+
+    Raises:
+        ValueError: The seed is outside [0, 2**32).
     """
     if not 0 <= seed < 2**32:
         raise ValueError("seed must be in [0, 2**32)")
@@ -30,7 +41,14 @@ def seed_everything(seed: int, *, deterministic: bool = True) -> torch.Generator
 
 
 def seed_worker(worker_id: int) -> None:
-    """Seed worker Python/NumPy RNGs; pair with seed_everything's loader generator."""
+    """Seed worker Python/NumPy RNGs; pair with seed_everything's loader generator.
+
+    Args:
+        worker_id: DataLoader worker index; accepted for the callback API but not used directly.
+
+    Returns:
+        None.
+    """
     del worker_id
     worker_seed = torch.initial_seed() % 2**32
     random.seed(worker_seed)

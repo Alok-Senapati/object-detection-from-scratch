@@ -5,7 +5,14 @@ import sys
 
 
 def main() -> None:
-    """Run lint, formatting, typing and tests, stopping on the first failing command."""
+    """Run lint, formatting, typing and tests, stopping on the first failing command.
+
+    Returns:
+        None.
+
+    Raises:
+        subprocess.CalledProcessError: A required validation command fails.
+    """
     for command in (
         ["ruff", "check", "."],
         ["ruff", "format", "--check", "."],

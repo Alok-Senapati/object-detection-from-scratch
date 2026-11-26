@@ -13,7 +13,14 @@ from od_scratch.utils.visualizer import ARTIFACTS_PATH, visualize_batch
 
 
 def main() -> None:
-    """Render annotated samples; --no-show supports automated headless checks."""
+    """Render annotated samples; --no-show supports automated headless checks.
+
+    Returns:
+        None.
+
+    Raises:
+        SystemExit: CLI arguments are invalid or help was requested.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=DATASET_BASEPATH)
     parser.add_argument("--split", choices=("train", "val", "trainval", "test"), default="train")

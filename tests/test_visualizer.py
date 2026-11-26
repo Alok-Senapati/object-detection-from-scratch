@@ -21,6 +21,14 @@ from od_scratch.utils.visualizer import visualize_batch
 
 
 def sample(empty: bool = False) -> tuple[torch.Tensor, Target]:
+    """Create a synthetic image and target for rendering tests.
+
+    Args:
+        empty: Return zero objects when True; otherwise include one cat with both flags.
+
+    Returns:
+        A differentiable (3, 20, 30) image and matching visualization target.
+    """
     image = torch.ones(3, 20, 30, requires_grad=True)
     target = {
         "boxes": torch.empty(0, 4) if empty else torch.tensor([[1.0, 2.0, 15.0, 18.0]]),
@@ -35,6 +43,15 @@ def sample(empty: bool = False) -> tuple[torch.Tensor, Target]:
 
 @pytest.mark.parametrize("count", [1, 2, 5, 6])
 def test_render_saves_and_closes(tmp_path: Path, count: int) -> None:
+    """Save a readable PNG and close the figure without interactive display.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+        count: Number of images to render.
+
+    Returns:
+        None.
+    """
     image, target = sample(empty=True)
     before = plt.get_fignums()
     with patch.object(plt, "show") as show:
@@ -54,11 +71,21 @@ def test_render_saves_and_closes(tmp_path: Path, count: int) -> None:
 
 
 def test_overlay_geometry_flags_and_no_mutation() -> None:
+    """Draw correctly aligned boxes and flags without modifying inputs.
+
+    Returns:
+        None.
+    """
     image, target = sample()
     original = {key: value.clone() for key, value in target.items()}
     figures: list[Figure] = []
 
     def inspect() -> None:
+        """Check the displayed figure's title, pixel extent, rectangle, and flags.
+
+        Returns:
+            None.
+        """
         fig = plt.gcf()
         figures.append(fig)
         ax = fig.axes[0]
@@ -82,6 +109,14 @@ def test_overlay_geometry_flags_and_no_mutation() -> None:
 
 @pytest.mark.parametrize("case", ["empty", "batch", "flags", "box", "negative", "large"])
 def test_invalid_targets_do_not_leak_figures(case: str) -> None:
+    """Reject invalid batches and targets without leaving figures open.
+
+    Args:
+        case: Invalid input variant to exercise.
+
+    Returns:
+        None.
+    """
     image, target = sample()
     images, targets = [image], [target]
     if case == "empty":
@@ -101,6 +136,14 @@ def test_invalid_targets_do_not_leak_figures(case: str) -> None:
 
 
 def test_save_failure_closes_figure(tmp_path: Path) -> None:
+    """Close the figure when saving raises an I/O error.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+
+    Returns:
+        None.
+    """
     image, target = sample()
     before = plt.get_fignums()
     with patch.object(Figure, "savefig", side_effect=OSError("disk full")):
@@ -110,6 +153,14 @@ def test_save_failure_closes_figure(tmp_path: Path) -> None:
 
 
 def test_cli_dataset_to_png(tmp_path: Path) -> None:
+    """Run both inspection CLIs on a synthetic VOC dataset and verify PNG export.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+
+    Returns:
+        None.
+    """
     root = tmp_path / "voc"
     for directory in ("JPEGImages", "Annotations", "ImageSets/Main"):
         (root / directory).mkdir(parents=True)
@@ -160,6 +211,14 @@ def test_cli_dataset_to_png(tmp_path: Path) -> None:
 
 @pytest.mark.parametrize("script", ["check_dataloader.py", "visualize_dataset.py"])
 def test_cli_rejects_nonpositive_batch_size(script: str) -> None:
+    """Reject a nonpositive CLI batch size with a usage error.
+
+    Args:
+        script: CLI script filename under test.
+
+    Returns:
+        None.
+    """
     result = subprocess.run(
         [sys.executable, str(Path(__file__).parents[1] / "scripts" / script), "--batch-size", "0"],
         capture_output=True,

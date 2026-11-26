@@ -9,6 +9,16 @@ from od_scratch.data.voc import parse_voc_annotation
 
 
 def annotation(tmp_path: Path, objects: str = "", size: str = "10") -> Path:
+    """Write a minimal VOC annotation fixture.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+        objects: Object XML fragments to embed.
+        size: Width text to embed, including invalid values for rejection tests.
+
+    Returns:
+        Path to the generated annotation file.
+    """
     path = tmp_path / "sample.xml"
     path.write_text(
         f"<annotation><filename>sample.jpg</filename><size><width>{size}</width>"
@@ -19,6 +29,15 @@ def annotation(tmp_path: Path, objects: str = "", size: str = "10") -> Path:
 
 
 def object_xml(box: str = "1,1,10,8", flags: str = "") -> str:
+    """Build an object annotation with configurable coordinates and flags.
+
+    Args:
+        box: Comma-separated xmin,ymin,xmax,ymax coordinate text.
+        flags: Optional flag XML fragments.
+
+    Returns:
+        One cat object XML fragment.
+    """
     coords = dict(zip(("xmin", "ymin", "xmax", "ymax"), box.split(","), strict=True))
     return (
         "<object><name>cat</name><bndbox>"
@@ -28,6 +47,14 @@ def object_xml(box: str = "1,1,10,8", flags: str = "") -> str:
 
 
 def test_coordinates_flags_and_order(tmp_path: Path) -> None:
+    """Convert VOC coordinates while retaining object order and flags.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+
+    Returns:
+        None.
+    """
     path = annotation(
         tmp_path,
         object_xml(flags="<difficult>1</difficult>")
@@ -42,10 +69,26 @@ def test_coordinates_flags_and_order(tmp_path: Path) -> None:
 
 
 def test_empty_annotation(tmp_path: Path) -> None:
+    """Accept an annotation without objects.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+
+    Returns:
+        None.
+    """
     assert parse_voc_annotation(annotation(tmp_path))["objects"] == []
 
 
 def test_parser_does_not_require_image_file(tmp_path: Path) -> None:
+    """Parse XML independently of image-file availability.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+
+    Returns:
+        None.
+    """
     path = annotation(tmp_path, object_xml())
     assert not (tmp_path / "sample.jpg").exists()
     result = parse_voc_annotation(path)
@@ -58,6 +101,16 @@ def test_parser_does_not_require_image_file(tmp_path: Path) -> None:
 )
 @pytest.mark.parametrize("empty", [False, True])
 def test_missing_or_empty_required_fields(tmp_path: Path, field: str, empty: bool) -> None:
+    """Reject required XML fields that are absent or empty.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+        field: XML element path to remove or empty.
+        empty: Whether to exercise the empty-data variant.
+
+    Returns:
+        None.
+    """
     path = annotation(tmp_path, object_xml())
     tree = ET.parse(path)
     element = tree.find(field)
@@ -76,12 +129,30 @@ def test_missing_or_empty_required_fields(tmp_path: Path, field: str, empty: boo
 
 @pytest.mark.parametrize("box", ["0,1,10,8", "1,1,11,8", "5,1,3,8", "nan,1,10,8", "1,1,inf,8"])
 def test_invalid_boxes(tmp_path: Path, box: str) -> None:
+    """Reject out-of-bounds, inverted, and nonfinite annotation coordinates.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+        box: Box coordinates or coordinate text for this test case.
+
+    Returns:
+        None.
+    """
     with pytest.raises(ValueError, match="invalid box"):
         parse_voc_annotation(annotation(tmp_path, object_xml(box)))
 
 
 @pytest.mark.parametrize("size", ["0", "-1", "bad"])
 def test_invalid_dimensions(tmp_path: Path, size: str) -> None:
+    """Reject nonpositive or nonnumeric annotation dimensions.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+        size: Invalid image-width text.
+
+    Returns:
+        None.
+    """
     with pytest.raises(ValueError):
         parse_voc_annotation(annotation(tmp_path, size=size))
 
@@ -95,11 +166,28 @@ def test_invalid_dimensions(tmp_path: Path, size: str) -> None:
     ],
 )
 def test_invalid_objects(tmp_path: Path, objects: str) -> None:
+    """Reject incomplete objects and invalid binary flags.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+        objects: Malformed object XML fragments.
+
+    Returns:
+        None.
+    """
     with pytest.raises(ValueError):
         parse_voc_annotation(annotation(tmp_path, objects))
 
 
 def test_missing_and_malformed_xml(tmp_path: Path) -> None:
+    """Propagate missing-file and malformed-XML errors.
+
+    Args:
+        tmp_path: Temporary directory supplied by pytest.
+
+    Returns:
+        None.
+    """
     path = tmp_path / "missing.xml"
     with pytest.raises(FileNotFoundError):
         parse_voc_annotation(path)

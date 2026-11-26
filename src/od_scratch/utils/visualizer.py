@@ -24,6 +24,9 @@ def visualize_batch(
 ) -> None:
     """Draw a variable-size batch with class names and T/D annotation flags.
 
+    Inputs are detached and copied to CPU for plotting. All created figures are
+    closed, including when rendering or saving raises an exception.
+
     Args:
         images: RGB CHW tensors in [0, 1], as returned by VOCDataset.
         targets: Matching targets with pixel-edge xyxy boxes and zero-based labels.
@@ -31,11 +34,12 @@ def visualize_batch(
         output_dir: Directory created when saving a figure.
         show: Display the figure interactively; disable for headless execution.
 
+    Returns:
+        None.
+
     Raises:
         ValueError: The batch is empty, counts disagree, or a label is out of range.
-
-    Inputs are detached and copied to CPU for plotting. All created figures are
-    closed, including when rendering or saving raises an exception.
+        OSError: The output directory or figure cannot be written.
     """
     if not images or len(images) != len(targets):
         raise ValueError("Expected a nonempty batch with matching images and targets")

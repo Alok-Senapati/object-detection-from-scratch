@@ -41,14 +41,36 @@ def parse_voc_annotation(path: Path) -> dict[str, Any]:
     """
 
     def required_text(element: ET.Element, tag: str) -> str:
-        """Read a required, nonempty child field."""
+        """Read a required, nonempty child field.
+
+        Args:
+            element: Parent XML element.
+            tag: Required child tag to read.
+
+        Returns:
+            Stripped, nonempty child text.
+
+        Raises:
+            ValueError: The child text is missing or empty.
+        """
         text = element.findtext(tag)
         if text is None or not text.strip():
             raise ValueError(f"{path}: missing or empty <{tag}> inside <{element.tag}>.")
         return text.strip()
 
     def read_flag(element: ET.Element, tag: str) -> bool:
-        """Read a binary flag, defaulting to False when absent."""
+        """Read a binary flag, defaulting to False when absent.
+
+        Args:
+            element: Object XML element.
+            tag: Binary flag tag to read.
+
+        Returns:
+            True for 1; False for 0 or a missing flag.
+
+        Raises:
+            ValueError: The flag is not 0 or 1.
+        """
         value = element.findtext(tag, "0").strip()
         if value not in {"0", "1"}:
             raise ValueError(f"{path}: <{tag}> must be '0' or '1', got {value!r}.")

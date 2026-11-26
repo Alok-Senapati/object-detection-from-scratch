@@ -10,7 +10,12 @@ from od_scratch.infra.device import memory_stats, select_device
 
 
 def diagnose() -> dict[str, Any]:
-    """Collect runtime versions and the automatically selected device's memory data."""
+    """Collect runtime versions and the automatically selected device's memory data.
+
+    Returns:
+        Runtime versions, device availability, selected device, and memory measurements.
+        CUDA results also include the GPU name.
+    """
     device = select_device()
     result: dict[str, Any] = {
         "python": platform.python_version(),
@@ -27,5 +32,9 @@ def diagnose() -> dict[str, Any]:
 
 
 def main() -> None:
-    """Print the environment diagnostic as JSON."""
+    """Print the environment diagnostic as JSON.
+
+    Returns:
+        None.
+    """
     print(json.dumps(diagnose(), indent=2))

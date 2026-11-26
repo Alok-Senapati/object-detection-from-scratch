@@ -11,10 +11,22 @@ import torch
 def save_checkpoint(
     path: Path, model: torch.nn.Module, *, training_state: dict[str, Any] | None = None
 ) -> None:
-    """State can include optimizer, scheduler, scaler, epoch and RNG tensors.
+    """Atomically save model weights and caller-owned training state.
 
-    Exact resume requires caller to capture/restore ALL RNGs and loader state.
-    This helper deliberately makes no exact-resume guarantee.
+    Exact resume requires the caller to capture and restore all RNG and loader
+    state; this helper does not guarantee exact resume.
+
+    Args:
+        path: Destination checkpoint path; parent directories are created.
+        model: Model whose state dictionary is saved.
+        training_state: Optional serializable optimizer, scheduler, epoch, RNG, or other resume
+            state.
+
+    Returns:
+        None.
+
+    Raises:
+        OSError: The checkpoint cannot be written or atomically replaced.
     """
     path.parent.mkdir(parents=True, exist_ok=True)
     fd, temporary = tempfile.mkstemp(dir=path.parent, suffix=".tmp")
@@ -36,9 +48,19 @@ def save_checkpoint(
 def load_checkpoint(path: Path, model: torch.nn.Module, *, strict: bool = True) -> dict[str, Any]:
     """Load weights onto the supplied model and return caller-owned training state.
 
+    Args:
+        path: Checkpoint produced by save_checkpoint.
+        model: Model to receive the saved weights.
+        strict: Require matching state keys; tensor shapes must match even when False.
+
+    Returns:
+        The saved training-state dictionary; optimizer and RNG restoration remain the caller's
+        responsibility.
+
     Raises:
         ValueError: The checkpoint schema or training state is invalid.
         RuntimeError: Model keys or tensor shapes are incompatible with the checkpoint.
+        OSError: The checkpoint cannot be read.
     """
     payload = torch.load(path, map_location="cpu", weights_only=True)
     if not isinstance(payload, dict) or payload.get("schema_version") != 1:

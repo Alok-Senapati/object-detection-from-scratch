@@ -9,7 +9,14 @@ from od_scratch.data.dataset import DATASET_BASEPATH, VOCDataset, detection_coll
 
 
 def main() -> None:
-    """Load the requested split and report image and target shapes and dtypes."""
+    """Load the requested split and report image and target shapes and dtypes.
+
+    Returns:
+        None.
+
+    Raises:
+        SystemExit: CLI arguments are invalid or help was requested.
+    """
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--root", type=Path, default=DATASET_BASEPATH)
     parser.add_argument("--split", choices=("train", "val", "trainval", "test"), default="train")
